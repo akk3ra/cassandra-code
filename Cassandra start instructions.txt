@@ -1,0 +1,24 @@
+
+//Instructions on my mac to start the Cassandra server
+
+cd Cassandra
+cd opt
+cd cassandra
+cd apache-cassandra-1.1.2
+cd bin
+./cassandra -f
+
+//Once the above commands are executed make sure the local host is connected to the port 9160
+
+
+//Instructions to create a Command Line Interface for Cassandra
+
+cd Cassandra
+cd opt
+cd cassandra
+cd apache-cassandra-1.1.2
+cd bin
+
+//This command will create the command line interface for the Cassandra server
+
+./cassandra-cli --host localhost --port 9160

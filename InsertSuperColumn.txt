@@ -1,0 +1,69 @@
+public class InsertSuperColumn{
+
+	public static final String HOST = "localhost";
+	public static final int PORT = 9160;
+	public static void main(String args[]){
+			
+			TTrasnport transport = new TSocket(HOST, PORT);
+			TFramedTransport tf = new TFramedTransport(transport);
+			TProtocol protocol = ne wTBinaryProtocol(tf);
+			
+			Cassandra.Client client = new Cassandra.Client(protocol);
+			
+			tf.open();
+			
+			String keyspace = "flinkspace";
+			String cfName = "PointsOfInterest";
+			
+			String poi1 = "poi1";
+			
+			Map<byte[], Map<String, List<Mutation>>> outerMap = new HashMap<byte[], Map<String, List<Mutation>>>();
+			Map<String, List<Mutation>> innerMap = new HashMap<String, List<Mutation>>();
+			
+			
+			
+			List<Column> cols = new ArrayList<Column>();
+			
+			long longTime = System.currentTimeMillis();
+			
+			Column descCol = new Column(ByteBuffer.wrap("desc".getBytes()), ByteBuffer.wrap("This is a good place".getBytes()), longTime);
+			Column phoneCol = new Column(ByteBuffer.wrap("phone".getBytes()), ByteBuffer.wrap("612-612-6012".getBytes()), longTime);
+			
+			cols.add(descCol);
+			cols.add(phoneCol);
+			
+			ColumnOrSuperColumn cosc = new ColumnOrSuperColumn();
+			SuperColumn hotel1 = new SuperColumn();
+			
+			hotel1.name = "Grand Kakatiya";
+			hotel1.columns = cols;
+			
+			cosc.super_column = hotel1;
+			
+			Mutation columns = new Mutation();
+			
+			columns.setColumn_or_SuperColumn = cosc;
+			
+			List<Mutation> mutList = new ArrayList<Mutation>();
+			
+			mutList.add(columns);
+			
+			
+			
+			
+			innerMap.put(cfName, mutList);
+			outerMap.put(poi1.getBytes(), innermap);
+			
+			client.batch_mutate(outermap, ConsistencyLevel.ONE);
+			
+			tf.close();
+			
+			
+			
+			
+			
+			
+			
+			
+	}
+}

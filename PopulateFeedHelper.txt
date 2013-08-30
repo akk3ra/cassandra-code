@@ -1,0 +1,49 @@
+public class PopulateFeedHelper{
+
+	public static Map<String, List<FeedVO>> getUserFeeds(){
+	
+		Map<String, List<FeedVO>> retMap = new Map<String, List<FeedVO>>();
+		retMap.put("SravFeeds",getFeedList());
+		retMap.put("SandFeeds",getFeedList());
+		
+		return retMap;
+		
+	}
+	
+	public static List<FeedVO> getFeedList(String userFID){
+	
+		List<FeedVO> feedList = new ArrayList<FeedVO>();
+		FeedVO vo1 = new FeedVO();
+		
+		vo1.setName("Sandeep Akkera");
+		vo1.setFid("12345");
+		vo1.setfeedType("Commented");
+		vo1.setFeedContent("Hi Pinky, How are you doing ?");
+		vo1.setLikeSize("22");
+		vo1.setCommentSize("32");
+		
+		feedList.add(vo1);
+		
+		vo1.setName("Deepika Akkera");
+		vo1.setFid("34567");
+		vo1.setfeedType("Commented");
+		vo1.setFeedContent("Hi Vadina, How are you doing ?");
+		vo1.setLikeSize("14");
+		vo1.setCommentSize("45");
+
+		
+		feedList.add(vo1);
+		
+		vo1.setName("Ashok Akkera");
+		vo1.setFid("101010");
+		vo1.setfeedType("Commented");
+		vo1.setFeedContent("Photo BLOB");
+		vo1.setLikeSize("24");
+		vo1.setCommentSize("35");
+
+		feedList.add(vo1);
+		
+		return feedList;
+
+	}
+}

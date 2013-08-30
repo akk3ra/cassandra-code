@@ -1,0 +1,75 @@
+public class CassFeedSuperColInsert{
+
+
+public static final String HOST = "localhost";
+public static final int PORT = 9160;
+		public static void main(){
+		
+			TTransport transport = new TSocket(HOST, PORT);
+			TFramedTransport tf = new TFramedTransport(transport);
+			TProtocol protocol = new TBinaryProtocol(tf);
+			
+			Cassandra.Client client = new Cassandra.Client(protocol);
+			
+			String keyspace = "flinkspace";
+			String cfName = "NewsFeed";
+			
+			client.set_keyspace(keyspace);
+			
+			Map<ByteBuffer, Map<String, List<Mutation>>> outerMap = new Map<ByteBuffer, Map<String, List<Mutation>>>();
+			Map<String, List<Mutation>> innerMap = new Map<String, List<Mutation>>();
+			List<Mutation> mutList = new ArrayList<Mutation>();
+			Mutation mut = null;
+			List<FeedVO> feedList = PopulateFeedHelper.getFeedList(sravFeeds);//pass the row key to the getFeedList method
+			
+			ColumnOrSuperColumn colOrSuperCol = null;
+			SuperColumn superCol = null;
+			
+			List<Column> cols = null;
+			Column nameCol1 = null;
+			Column fidCol1 = null;
+			Column feedTypeCol1 = null;
+			Column feedContentCol1 = null;
+			Column likeSizeCol1 = null;
+			Column commentSizeCol1 = null;
+
+			for(FeedVO feedVO: feedList){
+				
+				cols = new ArrayList<Column>();
+				
+				nameCol1 = new Column(ByteBuffer.wrap.("name".getBytes()), ByteBuffer.wrap(feedVO.getName().getBytes()), longTime);
+				fidCol1 = new Column(ByteBuffer.wrap.("fid".getBytes()), ByteBuffer.wrap(feedVO.getFid().getBytes()), longTime);
+				feedTypeCol1 = new Column(ByteBuffer.wrap.("feedType".getBytes()), ByteBuffer.wrap(feedVO.getFeedType().getBytes()), longTime);
+				feedContentCol1 = new Column(ByteBuffer.wrap.("feedContent".getBytes()), ByteBuffer.wrap(feedVO.getFeedContent().getBytes()), longTime);
+				likeSizeCol1 = new Column(ByteBuffer.wrap.("likeSize".getBytes()), ByteBuffer.wrap(feedVO.getLikeSize().getBytes()), longTime);
+				commentSizeCol1 = new Column(ByteBuffer.wrap.("commentSize".getBytes()), ByteBuffer.wrap(feedVO.getCommentSize().getBytes()), longTime);
+				
+				cols.add(nameCol1);
+				cols.add(fidCol1);
+				cols.add(feedTypeCol1);
+				cols.add(feedContentCol1);
+				cols.add(likeSizeCol1);
+				cols.add(commentSizeCol1);
+				
+				colOrSuperCol = new ColumnOrSuperColumn();
+				superCol = new SuperColumn();
+				
+				superCol.name = feedVO.getFeedID;
+				superCol.columns = cols;
+				
+				colOrSuperCol.super_column = superCol;
+				
+				mut = new Mutation;
+				mut.column_or_supercolumn = colOrSuperCol;
+				mutList.add(mut);
+				
+						
+			}
+			
+			innerMap.put(cfName, mutList );
+			outerMap.put(ByteBuffer.wrap(sravFeeds.getBytes()), innerMap); //The map key is the FID of the user
+			client.batch_mutate(outerMap, ConsistencyLevel.ONE);
+		
+		}
+
+}

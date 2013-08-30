@@ -1,0 +1,73 @@
+public class CassFeedLikesSuperCollInsert{
+
+		public static final String HOST = "localhost";
+		public static final int PORT = 9160;
+		
+		public static void main(String args[]){
+			TTransport transport = new TSocket(HOST, PORT);
+			TFramedTransport tf = new TFramedTransport(transport);
+			TProtocol protocol = new TBinaryProtocol(tf);
+			Cassandra.Client client = new Cassandra.Client(protocol);
+			
+			String keyspace = "flinkspace";
+			String cfName = "FeedLikes";
+			
+			client.set_keyspace(keyspace);
+			
+			tf.open();
+			
+			// Here the key can be the FID of the person logged 
+			//(or) person whose profile is being viewed
+			
+			String sravsFeeds = "sravsFeeds";
+			
+			Map<String, List<LikesVO>> userFeeds = PopulateFeedLikesHelper.getFeedsMap(userFID);
+			
+			Map<ByteBuffer, Map<String, List<Mutation>>> outerMap 
+						= new HashMap<ByteBuffer, Map<String, List<Mutation>>>();
+						
+			//There is a list of mutations created per row key,
+			//Therefore the innerMap has to be created per rowkey (inside first for() loop)
+			
+			Map<String, List<Mutation>> innerMap = null;
+						
+			
+			List<Mutation> mutList = null;
+			List<Column> colList = null;
+			long longTime = 0.0;
+			
+			for(String key:userFeeds.KeySet){
+				
+				innerMap = new HashMap<String, List<Mutation>>();
+				mutList = new List<Mutation>();
+				Column nameCol = null;
+				Column fidCol = null;
+				longTime = System.currentTimeMillis();
+				ColumnOrSuperColumn colOrSuperCol = null;
+				SuperColumn superCol = null;
+				Mutation mut = null;
+				for(LikesVO likeVO: userFeeds.get(key)){
+					colOrSuperCol = new ColumnOrSuperColumn();
+					superCol = new SuperColumn();
+					mut = new Mutation();
+					colList = new ArrayList<Column>();
+					nameCol = new Column(ByteBuffer.wrap("name".getBytes()), ByteBuffer.wrap(likeVO.getName().getBytes()), longTime);
+					fidCol = new Column(ByteBuffer.wrap("fid".getBytes()), ByteBuffer.wrap(likeVO.getFid().getBytes()), longTime);
+					
+					colList.add(nameCol);
+					colList.add(nameCol);
+					superCol.name = likeVO.getName().getBytes();
+					superCol.columns = colList;
+					
+					colOrSuperCol.super_column = superCol;
+					mut.column_or_supercolumn = colOrSuperCol;
+					mutList.add(mut);
+				}
+				innerMap.put(key, mutList);
+				outerMap.put(ByteBuffer.wrap(key.getBytes()), innerMap);
+			}
+			
+			client.batch_mutate(outerMap, ConsistencyLevel.ONE);
+			tf.close();
+		}
+}

@@ -1,0 +1,89 @@
+public class MultiGetSlice{
+
+
+	public static fina String HOST = "localhost";
+	public static final int PORT = 9160;
+	
+	public static void main(String args[]){
+	
+			TTransport transport = new TSocket(HOST, PORT);
+			TFramedTransport tf = new TFramedTransport(transport);
+			TProtocol protocol = new TBinaryProtocol(tf);
+			
+			Cassandra.Client client = new Cassandra.Client(protocol);
+			
+			tf.open();
+			
+			String keyspace = "flinkspace";
+			String cfName = "FeedStore";
+			
+			client.set_keyspace(keyspace);
+			
+			
+			byte[] key1 = "key1".getBytes();
+			byte[] key2 = "key2".getBytes();
+			byte[] key3 = "key3".getBytes();
+			byte[] key4 = "key4".getBytes();
+	
+	
+			ColumnParent parent = new ColumnParent(cfName);
+			ColumnPath colpath = new ColumnPath(cfName);
+			
+			long longTime = System.currentTimeMillis();
+			
+			client.insert(ByteBuffer.wrap(key1)
+					,parent,new Column(ByteBuffer.wrap("name".getBytes())
+							, ByteBuffer.wrap("Sandeep Akkera".getBytes()), longTime)
+									, ConsistencyLevel.ONE);
+			client.insert(ByteBuffer.wrap(key1)
+					,parent,new Column(ByteBuffer.wrap("name".getBytes())
+							, ByteBuffer.wrap("Deepika Akkera".getBytes()), longTime)
+									,ConsistencyLevel.ONE);
+			client.insert(ByteBuffer.wrap(key1)
+					,parent,new Column(ByteBuffer.wrap("name".getBytes())
+							, ByteBuffer.wrap("Sravani Akkera".getBytes()), longTime)
+									,ConsistencyLevel.ONE);
+			client.insert(ByteBuffer.wrap(key1)
+					,parent,new Column(ByteBuffer.wrap("name".getBytes())
+							, ByteBuffer.wrap("Ashok Akkera".getBytes()), longTime)
+									,ConsistencyLevel.ONE);
+			
+			List<byte[]> rowKeys = new ArrayList<byte[]>();
+			
+			rowKeys.add(ByteBuffer.wrap(key1));
+			rowKeys.add(ByteBuffer.wrap(key2));
+			rowKeys.add(ByteBuffer.wrap(key3));
+			rowKeys.add(ByteBuffer.wrap(key4));
+			
+			
+			SlicePredicate predicate = new SlicePredicate();
+			
+			List<Column> cols = new ArrayList<Column>();
+			cols.add(ByteBuffer.wrap("name".getBytes()));
+			predicate.columns = cols;
+			
+			
+			Map<byte[], List<ColumnOrSuperColumn>> multislice 
+							= client.multiget_slice(rowKeys, parent, predicate, ConsistencyLevel.ONE);
+			
+			for(byte[] key : multislice.getKeySet()){
+			
+				system.out.println("Key retrieved-->"+key);
+				List<ColumnOrSuperColumn> keyColList = multislice.get(key);
+				
+					for(ColumnOrSuperColumn cosc:keyColList){
+					Column col1 = cosc.column;
+					
+						System.out.println("Column name-->"+(new String(col1.name), UTF8));
+						System.out.println("Column value-->"+(new String(col1.value), UTF8));
+
+						
+					}
+			
+			}
+			
+			tf.close();
+			
+	
+	}
+}

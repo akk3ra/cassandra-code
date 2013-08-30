@@ -1,0 +1,26 @@
+public class CassConnector{
+
+	private static final String HOST = "localhost";
+	private static final int PORT = 9160;
+	private static Cassandra.Client client = null;
+	private CassConnector(){
+		
+		TTransport transport = 	new TSocket(HOST, PORT);
+		TFramedTransport tf = new TFramedTransport(transport);
+		TProtocol protocol = new TBinaryProtocol(tf);
+		
+		client = new CassandraClient(protocol);
+	}
+
+	public static Cassandra.Client getCassClient(){
+	
+	if(client ==null){
+		return new Cassandra.Client(HOST, PORT);
+		
+	}else {
+		new CassConnector();
+		return client;
+	}
+	
+	}
+}

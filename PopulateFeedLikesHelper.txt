@@ -1,0 +1,52 @@
+public class PopulateFeedLikesHelper{
+
+		public static Map<String, List<LikesVO>> getFeedsMap(String userFID){
+		
+		Map<String, List<LikesVO>> feedLikesMap = new HashMap<String, List<LikesVO>>();
+		
+			String feedID1 = "feedID1";
+			String feedID2 = "feedID2";
+			String feedID3 = "feedID3";
+			String feedID4 = "feedID4";
+			String feedID5 = "feedID5";
+
+			feedLikesMap.put(feedID1,getLikesPerFeed(feedID1) );
+			feedLikesMap.put(feedID2,getLikesPerFeed(feedID2) );
+			feedLikesMap.put(feedID3,getLikesPerFeed(feedID3) );
+			feedLikesMap.put(feedID4,getLikesPerFeed(feedID4) );
+			feedLikesMap.put(feedID5,getLikesPerFeed(feedID5) );
+
+			return feedLikesMap;
+		}
+		
+		
+		
+		private static List<LikesVO> getLikesPerFeed(feedID1){
+		
+				List<LikesVO> likesVO = new ArrayList<LikesVO>();
+				
+				LikeVO likeVO = new LikeVO();
+				
+				likeVO.setName("Sandeep Akkera");
+				likeVO.serFid("12345");
+				likesVO.add(likeVO);
+				
+				
+				likeVO.setName("Deepika Akkera");
+				likeVO.serFid("34567");
+				likesVO.add(likeVO);
+
+				likeVO.setName("Sravani Akkera");
+				likeVO.serFid("89012");
+				likesVO.add(likeVO);
+
+				likeVO.setName("Ashok Akkera");
+				likeVO.serFid("23456");
+				likesVO.add(likeVO);
+
+				likeVO.setName("Sadhana Akkera");
+				likeVO.serFid("45678");
+				likesVO.add(likeVO);
+
+		}
+}

@@ -1,0 +1,143 @@
+public class CassConnector{
+
+	private static final String HOST = "localhost";
+	private static final int PORT = 9160;
+	private static Cassandra.Client client = null;
+	private CassConnector(){
+		
+		TTransport transport = 	new TSocket(HOST, PORT);
+		TFramedTransport tf = new TFramedTransport(transport);
+		TProtocol protocol = new TBinaryProtocol(tf);
+		
+		client = new CassandraClient(protocol);
+	}
+
+	public static Cassandra.Client getCassClient(){
+	
+	if(client ==null){
+		return new Cassandra.Client(HOST, PORT);
+		
+	}else {
+		new CassConnector();
+		return client;
+	}
+	
+	}
+}
+public class CassandraTest{
+
+
+	public static final String HOST = "localhost";
+	public static final int PORT = 9160;
+	public static void main(string []args){
+	
+		//Getting the Cassandra Connection object
+		
+		//TTransport transport = TSocket(Host, Port);
+		//TFramedTransport tf = new TFramedTransport(transport);
+		//TProtocol protocol = new TBinaryProtocol(tf);
+		
+		//We are using the SingleTon connector class to generate the 
+		//Cassandra client below
+		
+		Cassandra.Client client = CassConnector.getCassClient();
+		
+		tf.open();
+		
+		String keyspace = "flinkspace";
+		client.setkeyspace(keyspace);
+		String cfName = "FeedStore";
+		
+		byte[] key1 = "key1".getBytes();
+		byte[] key2 = "key2".getBytes();
+		byte[] key3 = "key3".getBytes();
+		byte[] key4 = "key4".getBytes();
+		
+		
+		ColumnParent.parent = new ColumnParent(cfName);
+		
+		client.insert(key1, parent
+				, new Column(ByteBuffer.wrap("name".getBytes())
+						, ByteBuffer.wrap("Sandeep Akkera".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);
+		client.insert(key1, parent
+				, new Column(ByteBuffer.wrap("age".getBytes())
+						, ByteBuffer.wrap("29".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);									
+		
+		client.insert(key2, parent
+				, new Column(ByteBuffer.wrap("name".getBytes())
+								, ByteBuffer.wrap("Sravani Akkera".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);
+		client.insert(key2, parent
+				, new Column(ByteBuffer.wrap("age".getBytes())
+								, ByteBuffer.wrap("27".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);									
+
+		client.insert(key3, parent
+				, new Column(ByteBuffer.wrap("name".getBytes())
+								, ByteBuffer.wrap("Deepika Akkera".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);
+		client.insert(key3, parent
+				, new Column(ByteBuffer.wrap("age".getBytes())
+								, ByteBuffer.wrap("22".getBytes(UTF8))
+										, longTime), ConsistencyLevel.ONE);									
+
+		client.insert(key4, parent
+				, new Column(ByteBuffer.wrap("name".getBytes())
+								, ByteBuffer.wrap("Ashok Akkera".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);
+		client.insert(key4, parent
+				, new Column(ByteBuffer.wrap("age".getBytes())
+								, ByteBuffer.wrap("55".getBytes(UTF8))
+										, longTime)
+											, ConsistencyLevel.ONE);									
+		
+		
+		
+		SlicePredicate predicate = new SlicePredicate();
+		
+		List<ByteBuffer> colList = new ArrayList<ByteBuffer>();
+		
+		colList.add(ByteBuffer.wrap("name".getBytes()));
+		colList.add(ByteBuffer.wrap("age".getBytes()));
+		
+		predicate.column_names = colList;
+		
+		
+		
+		KeyRange keyRange = new KeyRange();
+		keyRange.start_key = key1;//Byte Array
+		keyRange.end_key = key4;//Byte Array
+		
+		
+		List<KeySlice> keySlices = client.get_range_slices(parent, predicate, keyRange, ConsistencyLevel.ONE);
+		
+		//Need to iterate over the keyslices retrieved from Cassandra
+		
+		for(KeySlice keySlice:keySlices){
+		
+		System.out.println("Key Val-->"+keySlice.getKey());
+		System.out.println("------------------------------");
+			List<ColumnOrSuperColumn> collist = keySlice.getColumns();
+			
+				//iterate over the column list for each key
+				for(ColumnOrSuperColumn colorsupercol: collist){
+					Column coll1 = colorsupercol.column;
+					
+					System.out.println("Column1-->"(new String(coll1.array())));
+					
+				}
+		System.out.println("------------------------------");		
+		}
+		
+		tf.close();
+	
+	}
+}

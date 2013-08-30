@@ -1,0 +1,85 @@
+public class insertHotels {
+
+
+	public static final String HOST = "localhost";
+	public static final int PORT = 9160;
+	
+	public static void main (String args[]){
+	
+		TTransport transport = new TSocket(HOST, PORT);
+		TFramedTransport tf = new TFramedTransport(transport);
+		TProtocol protocol = new TBinaryProtocol(tf);
+		
+		Cassandra.Client client = new Cassandra.Client(protocol);
+		
+		
+		String keyspace = "flinkspace";
+		String cfname = "HotelCF";
+		
+		client.set_keyspace = keyspace;
+		tf.open();
+		
+		String hotelRowKey1 = "hotelRowKey1";
+		
+		Map<byte[], Map<String, List<Mutation>>> outerMap = new HashMap<byte[], Map<String, List<Mutation>>>();
+		
+		Map<String, List<Mutation>> innerMap = new Map<String, List<Mutation>>();
+		
+		List<Mutation> mutList = new ArrayList<Mutation>();
+		
+		long longTime = System.currentTimeMillis();
+		
+		Column nameCol = new Column(ByteBuffer.wrap("name".getBytes(UTF8)), ByteBuffer.wrap("Grans Kakatiya".getBytes()), longTime);
+		Column phoneCol = new Column(ByteBuffer.wrap("phone".getBytes(UTF8)), ByteBuffer.wrap("6126126012".getBytes()), longTime);
+		Column addressCol = new Column(ByteBuffer.wrap("address".getBytes(UTF8)), ByteBuffer.wrap("111 Marquette Ave".getBytes()), longTime);
+		Column cityCol = new Column(ByteBuffer.wrap("city".getBytes(UTF8)), ByteBuffer.wrap("Minneapolis".getBytes()), longTime);
+		Column stateCol = new Column(ByteBuffer.wrap("state".getBytes(UTF8)), ByteBuffer.wrap("mn".getBytes()), longTime);
+		Column zipCol = new Column(ByteBuffer.wrap("zip".getBytes(UTF8)), ByteBuffer.wrap("55401".getBytes()), longTime);
+	
+		ColumnOrSuperColumn nameCosc = new ColumnOrSuperColumn();
+		nameCosc.column = nameCol;
+		ColumnOrSuperColumn phoneCosc = new ColumnOrSuperColumn();
+		phoneCosc.column = phoneCol;
+		ColumnOrSuperColumn addressCosc = new ColumnOrSuperColumn();
+		addressCosc.column = addressCol;
+		ColumnOrSuperColumn cityCosc = new ColumnOrSuperColumn();
+		cityCosc.column = cityCol;
+		ColumnOrSuperColumn stateCosc = new ColumnOrSuperColumn();
+		stateCosc.column = stateCol;
+		ColumnOrSuperColumn zipCosc = new ColumnOrSuperColumn();
+		zipCosc.column = zipCol;
+		
+		Mutation nameMut = new Mutation();
+		nameMut.setColumn_or_SuperColumn = nameCosc;
+		
+		Mutation addressMut = new Mutation();
+		nameMut.setColumn_or_SuperColumn = addressCosc;
+
+		Mutation phoneMut = new Mutation();
+		nameMut.setColumn_or_SuperColumn = phoneCosc;
+
+		Mutation cityMut = new Mutation();
+		nameMut.setColumn_or_SuperColumn = cityCosc;
+
+		Mutation stateMut = new Mutation();
+		nameMut.setColumn_or_SuperColumn = stateCosc;
+
+		Mutation zipMut = new Mutation();
+		nameMut.setColumn_or_SuperColumn = zipCosc;
+		
+		mutList.add(nameMut);
+		mutList.add(addressMut);
+		mutList.add(phoneMut);
+		mutList.add(cityMut);
+		mutList.add(stateMut);
+		mutList.add(zipMut);
+		
+		innerMap.put(cfName, mutList);
+		outermap.put(hotelRowKey1.getBytes(), innerMap);
+		
+		client.batch_mutate(outerMap, ConsistencyLevel.ONE);
+		
+		tf.close();
+
+	}
+}
